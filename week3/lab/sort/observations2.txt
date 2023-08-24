@@ -1,0 +1,15 @@
+sort2
+    - best case
+        - sorted5000 0.042s
+        - sorted10000 0.056s
+        - sorted50000 1.031s
+
+    - worst case
+        - reversed5000 0.043s
+        - reversed10000 0.100s
+        - reversed50000 0.763s
+
+    -random case
+        - random5000 0.043s
+        - random10000 0.076s
+        - random50000 0.974s

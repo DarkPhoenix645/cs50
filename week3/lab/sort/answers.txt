@@ -1,0 +1,11 @@
+sort1 uses: bubble sort
+
+How do you know?: sort1 performs consistently much much better in the best case i.e. when we use the sorted50000.txt, sort1 consistently outperforms sort3 by a large margin.
+
+sort2 uses: merge sort
+
+How do you know?: sort2 consistently has the lowest recorded times even when run multiple times using a shuffled list.
+
+sort3 uses: selection sort
+
+How do you know?: process of elimination. if sort1 and sort2 are bubble and merge sort respectively, sort3 must be selection sort.
