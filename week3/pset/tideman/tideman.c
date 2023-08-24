@@ -355,10 +355,3 @@ C   C   A   A   A   A   A   A   A
 B   B   C   C   C   B   B   B   B
 */
 
-        // curr_winner = determine_winner();
-
-        // If the endpoint of new edge is the current winner (in uncompleted graph) and this
-        // is the final iteration of the loop, then if statement is true.
-        //
-        // If the endpoint of new edge is the current winner (in uncompleted graph) and this
-        // is not the final iteration of the loop, then a cycle does not necessarily form
