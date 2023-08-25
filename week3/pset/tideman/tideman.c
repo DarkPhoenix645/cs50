@@ -21,6 +21,11 @@ pair;
 
 // Array of candidates
 string candidates[MAX];
+
+// The max number of pairs is MAX amount of candidates are there will be 
+// [MAX * (MAX - 1) / 2] since the order of elements in an individual pair
+// cannot be reversed i.e. if A (winner) : B (loser) exists, the reverse is not
+// possible
 pair pairs[MAX * (MAX - 1) / 2];
 
 int pair_count;
