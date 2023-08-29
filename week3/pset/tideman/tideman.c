@@ -22,7 +22,7 @@ pair;
 // Array of candidates
 string candidates[MAX];
 
-// The max number of pairs is MAX amount of candidates are there will be 
+// The max number of pairs if MAX amount of candidates are there will be
 // [MAX * (MAX - 1) / 2] since the order of elements in an individual pair
 // cannot be reversed i.e. if A (winner) : B (loser) exists, the reverse is not
 // possible
@@ -101,6 +101,10 @@ int main(int argc, string argv[])
     add_pairs();
     sort_pairs();
     lock_pairs();
+
+    // DEBUG
+    // debug();
+
     print_winner();
     return 0;
 }
@@ -149,7 +153,7 @@ void record_preferences(int ranks[])
             // If index of i is lower, that implies i has higher preference
             if (indices[i] < indices[j])
             {
-                preferences[i][j] += 1;
+                preferences[i][j]++;
             }
         }
     }
@@ -174,7 +178,7 @@ void add_pairs(void)
                 // DEBUG
                 // printf("winner - %s, loser - %s\n", candidates[pairs[pair_count].winner], candidates[pairs[pair_count].loser]);
 
-                pair_count += 1;
+                pair_count++;
             }
         }
     }
@@ -257,25 +261,31 @@ void lock_pairs(void)
 {
     int curr_winner;
 
+    // Remember that by now the pairs array has been sorted according to strength so we can just iterate through the
+    // array one by one locking in edges after checking for loops
     for (int i = 0; i < pair_count; i++)
     {
         curr_winner = determine_winner();
 
-        // Passes if the endpoint of new edge is the current winner
-        // and we are on the last iteration
-        if (pairs[i].loser == curr_winner && i == pair_count - 1)
+        // If the loser of edge to be created is the current winner, then the addition of new edge could result in
+        // formation of a cycle
+        if (pairs[i].loser == curr_winner)
         {
             bool cycle = false;
 
             for (int j = 0; j < candidate_count; j++)
             {
-                /**/
+                // Main cycle detection loop
 
-                bool condition = (pairs[i].winner == j) ||
-                                 (locked[j][j + 1] && j < candidate_count - 1) ||
-                                 (j == candidate_count - 1 && locked[j][0]);
+                // Loops through candidates array and checks if there exists an edge between consecutive members of array
+                // If there does and we are on the last element of the loop (inner if condition) i.e. we have checked all
+                // possible combinations of candidates array, then the cycle var is changed to true
 
-                if (condition)
+                bool edge_to_self = pairs[i].winner == j;
+                bool edge_between_consecutive_elements = locked[j][j + 1] && j < candidate_count - 2;
+                bool edge_from_current_to_first_element = locked[j][0] && j == candidate_count - 1;
+
+                if (edge_to_self || edge_between_consecutive_elements || edge_from_current_to_first_element)
                 {
                     if (j == candidate_count - 1) { cycle = true; }
                     else { continue; }
@@ -283,13 +293,17 @@ void lock_pairs(void)
                 else { break; }
             }
 
+            // Locks pair if a cycle is not detected and then checks next pair
             if (cycle) { continue; }
             else { locked[pairs[i].winner][pairs[i].loser] = true; }
         }
-        else { locked[pairs[i].winner][pairs[i].loser] = true; }
-    }
 
-    debug();
+        // If the loser of new edge is not the current winner then a cycle could not possibly be formed
+        else
+        {
+            locked[pairs[i].winner][pairs[i].loser] = true;
+        }
+    }
 
     return;
 }
@@ -305,13 +319,14 @@ int determine_winner(void)
     {
         for (int j = 0; j < candidate_count; j++)
         {
-            if (locked[j][i] == 1) { break; }
-            else if (locked[i][j] == 1)
+            if (locked[j][i] == true)
+            {
+                break;
+            }
+            else if (locked[i][j] == true)
             {
                 for (int k = 0; k < candidate_count; k++)
                 {
-                    // printf("%i, %i, %i\n", i, j, k);
-
                     if (locked[k][i] == 1) { break; }
                     else if (locked[k][i] == 0 && k != candidate_count - 1) { continue; }
                     else if (locked[k][i] == 0 && k == candidate_count - 1) { winner = i; continue; }
@@ -328,6 +343,7 @@ int determine_winner(void)
     return winner;
 }
 
+// DEBUG
 void debug(void)
 {
     for (int i = 0; i < pair_count; i++)
@@ -343,6 +359,8 @@ void debug(void)
 void print_winner(void)
 {
     int winner = determine_winner();
+
+    // Prints error for negative return values of determine_winner
     (winner < 0) ? printf("Winner could not be determined.\n") : printf("%s\n", candidates[winner]);
     return;
 }
@@ -353,6 +371,11 @@ B   B   B   C   C   A   A   A   A
 C   C   C   A   A   B   B   B   B
 */
 
+/* CYCLIC EXAMPLE ==> B WINNER
+B   B   B   B   A   A   A   C   C
+C   C   C   C   B   B   B   B   A
+A   A   A   A   C   C   C   A   B
+*/
 
 /* NON CYCLIC EXAMPLE ==> A WINNER
 A   A   B   B   B   C   C   C   C
