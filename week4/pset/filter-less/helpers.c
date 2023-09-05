@@ -1,7 +1,4 @@
-#include <stdbool.h>
-#include <stdio.h>
 #include <math.h>
-
 #include "helpers.h"
 
 // Convert image to grayscale
@@ -28,6 +25,42 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
     return;
 }
 
+// Convert image to sepia
+void sepia(int height, int width, RGBTRIPLE image[height][width])
+{
+    RGBTRIPLE copy[height][width];
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            copy[i][j].rgbtBlue = image[i][j].rgbtBlue;
+            copy[i][j].rgbtGreen = image[i][j].rgbtGreen;
+            copy[i][j].rgbtRed = image[i][j].rgbtRed;
+        }
+    }
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            float sepiaR, sepiaG, sepiaB;
+            sepiaR = .393 * copy[i][j].rgbtRed + .769 * copy[i][j].rgbtGreen + .189 * copy[i][j].rgbtBlue;
+            sepiaG = .349 * copy[i][j].rgbtRed + .686 * copy[i][j].rgbtGreen + .168 * copy[i][j].rgbtBlue;
+            sepiaB = .272 * copy[i][j].rgbtRed + .534 * copy[i][j].rgbtGreen + .131 * copy[i][j].rgbtBlue;
+
+            if (sepiaR > 255) { sepiaR = 255; };
+            if (sepiaG > 255) { sepiaG = 255; };
+            if (sepiaB > 255) { sepiaB = 255; };
+
+            image[i][j].rgbtRed = (int) round(sepiaR);
+            image[i][j].rgbtGreen = (int) round(sepiaG);
+            image[i][j].rgbtBlue = (int) round(sepiaB);
+        }
+    }
+
+    return;
+}
+
 // Reflect image horizontally
 void reflect(int height, int width, RGBTRIPLE image[height][width])
 {
@@ -48,7 +81,7 @@ void reflect(int height, int width, RGBTRIPLE image[height][width])
     return;
 }
 
-// Blur image using box blur method
+// Blur image
 void blur(int height, int width, RGBTRIPLE image[height][width])
 {
     RGBTRIPLE copy[height][width];
@@ -89,76 +122,6 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
             image[i][j].rgbtRed = (int) round((double)aveR / (double)count);
             image[i][j].rgbtGreen = (int) round((double)aveG / (double)count);
             image[i][j].rgbtBlue = (int) round((double)aveB / (double)count);
-        }
-    }
-
-    return;
-}
-
-// Detect edges using the Sobel algorithm
-void edges(int height, int width, RGBTRIPLE image[height][width])
-{
-    // The following kernels are as defined in the Sobel algorithm
-    const int GxKernel[3][3] = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
-    const int GyKernel[3][3] = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };
-
-    RGBTRIPLE copy[height][width];
-
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            copy[i][j] = image[i][j];
-        }
-    }
-
-    for (int row = 0; row < height; row++)
-    {
-        for (int col = 0; col < width; col++)
-        {
-            // Using doubles for precision
-            double GxR, GxG, GxB;
-            double GyR, GyG, GyB;
-            double finalR, finalG, finalB;
-            GxR = GxG = GxB = GyR = GyG = GyB = 0;
-
-            // Checking the 3x3 grid around any given pixel
-            for (int offsetY = -1; offsetY < 2; offsetY++)
-            {
-                for (int offsetX = -1; offsetX< 2; offsetX++)
-                {
-                    // Skip pixel if it's index is out of bounds
-                    if (offsetY + row < 0 || offsetY + row > height || offsetX + col < 0 || offsetX + col > width) { continue; }
-
-                    GxR += image[offsetY + row][offsetX + col].rgbtRed * GxKernel[offsetY + 1][offsetX + 1];
-                    GxG += image[offsetY + row][offsetX + col].rgbtGreen * GxKernel[offsetY + 1][offsetX + 1];
-                    GxB += image[offsetY + row][offsetX + col].rgbtBlue * GxKernel[offsetY + 1][offsetX + 1];
-
-                    GyR += image[offsetY + row][offsetX + col].rgbtRed * GyKernel[offsetY + 1][offsetX + 1];
-                    GyG += image[offsetY + row][offsetX + col].rgbtGreen * GyKernel[offsetY + 1][offsetX + 1];
-                    GyB += image[offsetY + row][offsetX + col].rgbtBlue * GyKernel[offsetY + 1][offsetX + 1];
-                }
-            }
-
-            finalR = sqrt(GxR * GxR + GyR * GyR);
-            finalG = sqrt(GxG * GxG + GyG * GyG);
-            finalB = sqrt(GxB * GxB + GyB * GyB);
-
-            if (finalR > 255) { finalR = 255; }
-            if (finalG > 255) { finalG = 255; }
-            if (finalB > 255) { finalB = 255; }
-
-            copy[row][col].rgbtRed = (int) round(finalR);
-            copy[row][col].rgbtGreen = (int) round(finalG);
-            copy[row][col].rgbtBlue = (int) round(finalB);
-        }
-    }
-
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            image[i][j] = copy[i][j];
         }
     }
 
