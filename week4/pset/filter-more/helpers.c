@@ -128,7 +128,13 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
                 for (int offsetX = -1; offsetX< 2; offsetX++)
                 {
                     // Skip pixel if it's index is out of bounds
-                    if (offsetY + row < 0 || offsetY + row > height || offsetX + col < 0 || offsetX + col > width) { continue; }
+                    bool row_out_of_bounds = offsetY + row < 0 || offsetY + row > height;
+                    bool col_out_of_bounds = offsetX + col < 0 || offsetX + col > width;
+
+                    if (row_out_of_bounds || col_out_of_bounds) 
+                    { 
+                        continue; 
+                    }
 
                     GxR += image[offsetY + row][offsetX + col].rgbtRed * GxKernel[offsetY + 1][offsetX + 1];
                     GxG += image[offsetY + row][offsetX + col].rgbtGreen * GxKernel[offsetY + 1][offsetX + 1];
@@ -144,6 +150,7 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
             finalG = sqrt(GxG * GxG + GyG * GyG);
             finalB = sqrt(GxB * GxB + GyB * GyB);
 
+            // Cap pixel value to 255
             if (finalR > 255) { finalR = 255; }
             if (finalG > 255) { finalG = 255; }
             if (finalB > 255) { finalB = 255; }
